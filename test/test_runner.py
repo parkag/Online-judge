@@ -1,5 +1,6 @@
-import unittest
+import unittest 
 from textwrap import dedent
+import timeit
 
 from oj.runner.runners import CRunner, PythonRunner
 
@@ -48,8 +49,11 @@ class TestRunner(unittest.TestCase):
     def test_run_python_test(self):
         runner = PythonRunner()
         runner.compile(self.python_fname_io)
-        output = runner.run_test('input.txt', "2\n4\n6\n")
-        self.assertEquals(output, "2\n4\n6\n")
+        test_input = '1\n2\n3\n'
+        test_output = '2\n4\n6\n'
+        output, time = runner.run_test(test_input)
+        self.assertEquals(output, test_output)
+        self.assertLess(time, 0.1)
 
     @classmethod
     def tearDownClass(self):

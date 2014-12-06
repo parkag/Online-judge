@@ -1,5 +1,7 @@
 import subprocess
 import shlex
+import tempfile
+import time
 
 class Runner(object):
 
@@ -50,19 +52,19 @@ class PythonRunner(Runner):
         program_output = subprocess.check_output(run_command.split())
         return program_output
 
-    def run_test(self, test_input_fname, test_output):
-        #pipe test_input to program call
-        test_input = open(test_input_fname)
-        run_command = 'python {0}'.format(self.filename)
-        p = subprocess.Popen(run_command.split(), stdin=test_input, stdout=subprocess.PIPE)
-        p.wait()
-        program_output = p.communicate()
-        
-        return program_output[0]
-        #if program_output == test_output:
-        #    return True
-        #else:
-        #    return False
+    def run_test(self, test_input):
+        with tempfile.TemporaryFile() as f:
+            f.write(test_input)
+            f.seek(0)
+            run_command = 'python {0}'.format(self.filename)
+            start_time = time.time()
+            p = subprocess.Popen(run_command.split(), stdin=f, stdout=subprocess.PIPE)
+            p.wait()
+            program_stdout, program_stderr = p.communicate()
+            end_time = time.time()
+            time_elapsed = end_time - start_time
+        return program_stdout, time_elapsed
+
 
     def clean_up(self):
         pass
